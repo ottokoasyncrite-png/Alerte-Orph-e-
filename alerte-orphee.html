@@ -4,928 +4,332 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alerte Orphée</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK compat (fonctionne partout, pas de module) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:            "AIzaSyALjmj_y07oGf0mKrqN_IhrFV924B1_hqU",
+    authDomain:        "alerte-11291-orphee.firebaseapp.com",
+    projectId:         "alerte-11291-orphee",
+    storageBucket:     "alerte-11291-orphee.firebasestorage.app",
+    messagingSenderId: "1091829792740",
+    appId:             "1:1091829792740:web:faf7e9fc953b23b36e91f1"
+  });
+  var db; window.addEventListener("load", function(){ db = firebase.firestore(); startFirebaseListeners(); });
+</script>
+
 <style>
-  :root {
-    --rouge: #C0392B;
-    --rouge-fonce: #922B21;
-    --rouge-vif: #E74C3C;
-    --or: #F4D03F;
-    --vert: #196F3D;
-    --noir: #0D0D0D;
-    --gris-fonce: #1A1A1A;
-    --gris-moyen: #2C2C2C;
-    --gris-clair: #888;
-    --blanc: #F5F0E8;
-    --blanc-pur: #FFFFFF;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--noir);
-    color: var(--blanc);
-    font-family: 'Instrument Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ——— ÉCRAN : SPLASH ——— */
-  .screen { display: none; min-height: 100vh; flex-direction: column; }
-  .screen.active { display: flex; }
-
-  #splash {
-    background: var(--noir);
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #splash::before {
-    content: '';
-    position: absolute;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(192,57,43,0.25) 0%, transparent 70%);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulse-glow 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
-  }
-
-  .splash-inner {
-    text-align: center;
-    z-index: 1;
-    animation: fade-up 0.8s ease forwards;
-  }
-
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .logo-shield {
-    width: 90px; height: 90px;
-    background: var(--rouge);
-    clip-path: polygon(50% 0%, 100% 15%, 100% 60%, 50% 100%, 0% 60%, 0% 15%);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 24px;
-    position: relative;
-    animation: shield-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes shield-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
-    50% { box-shadow: 0 0 0 20px rgba(192,57,43,0); }
-  }
-
-  .logo-shield span {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 32px;
-    color: white;
-    letter-spacing: 2px;
-  }
-
-  .app-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 56px;
-    letter-spacing: 6px;
-    color: var(--blanc);
-    line-height: 1;
-  }
-
-  .app-title span { color: var(--rouge); }
-
-  .app-subtitle {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 15px;
-    color: var(--gris-clair);
-    margin-top: 8px;
-    letter-spacing: 1px;
-  }
-
-  .flag-stripe {
-    display: flex;
-    gap: 4px;
-    justify-content: center;
-    margin: 20px 0 32px;
-  }
-  .stripe { width: 28px; height: 4px; border-radius: 2px; }
-  .stripe.vert { background: var(--vert); }
-  .stripe.rouge { background: var(--rouge); }
-  .stripe.jaune { background: var(--or); }
-
-  .btn-primary {
-    background: var(--rouge);
-    color: white;
-    border: none;
-    padding: 16px 48px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 3px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto 12px;
-  }
-  .btn-primary:hover { background: var(--rouge-vif); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(192,57,43,0.4); }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--gris-clair);
-    border: 1px solid #333;
-    padding: 14px 48px;
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  .btn-secondary:hover { border-color: var(--rouge); color: var(--blanc); }
-
-  /* ——— BARRE D'APP ——— */
-  .app-bar {
-    background: var(--gris-fonce);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #2a2a2a;
-    position: sticky; top: 0; z-index: 100;
-  }
-
-  .app-bar-logo {
-    display: flex; align-items: center; gap: 10px;
-  }
-
-  .shield-sm {
-    width: 32px; height: 32px;
-    background: var(--rouge);
-    clip-path: polygon(50% 0%, 100% 15%, 100% 60%, 50% 100%, 0% 60%, 0% 15%);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 12px; color: white;
-  }
-
-  .bar-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
-    color: var(--blanc);
-  }
-  .bar-title span { color: var(--rouge); }
-
-  .notif-bell {
-    width: 38px; height: 38px;
-    background: #2a2a2a;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border: none; color: var(--gris-clair);
-    font-size: 16px; position: relative;
-    transition: background 0.2s;
-  }
-  .notif-bell:hover { background: #333; }
-  .notif-dot {
-    position: absolute; top: 6px; right: 6px;
-    width: 8px; height: 8px;
-    background: var(--rouge);
-    border-radius: 50%;
-    border: 2px solid var(--gris-fonce);
-  }
-
-  /* ——— ACCUEIL ——— */
-  #home { background: var(--noir); }
-
-  .home-content { flex: 1; padding: 0 0 80px; overflow-y: auto; }
-
-  /* Bannière d'alerte active */
-  .alert-banner {
-    background: linear-gradient(135deg, #7B241C, var(--rouge-fonce));
-    padding: 16px 20px;
-    display: flex; align-items: center; gap: 12px;
-    cursor: pointer;
-    animation: banner-pulse 2s ease-in-out infinite;
-    transition: opacity 0.2s;
-  }
-  .alert-banner:hover { opacity: 0.9; }
-
-  @keyframes banner-pulse {
-    0%, 100% { border-left: 4px solid var(--rouge-vif); }
-    50% { border-left: 4px solid var(--or); }
-  }
-
-  .banner-icon {
-    width: 36px; height: 36px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-
-  .banner-text { flex: 1; }
-  .banner-text strong {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 2px;
-    display: block; color: white;
-  }
-  .banner-text span { font-size: 12px; color: rgba(255,255,255,0.75); }
-  .banner-arrow { color: rgba(255,255,255,0.6); font-size: 18px; }
-
-  /* Stats rapides */
-  .stats-row {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    gap: 1px; background: #1f1f1f;
-    margin-bottom: 24px;
-  }
-  .stat-item {
-    background: var(--gris-fonce);
-    padding: 16px 12px; text-align: center;
-  }
-  .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px; color: var(--rouge);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 10px; color: var(--gris-clair);
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-top: 4px;
-  }
-
-  /* Section titre */
-  .section-header {
-    padding: 0 20px 12px;
-    display: flex; align-items: baseline; justify-content: space-between;
-  }
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 2px;
-    color: var(--blanc);
-  }
-  .section-link {
-    font-size: 12px; color: var(--rouge);
-    text-decoration: none; cursor: pointer;
-  }
-
-  /* Carte alerte enfant */
-  .alert-card {
-    margin: 0 20px 16px;
-    background: var(--gris-fonce);
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #2a2a2a;
-    cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-  .alert-card:hover { transform: translateY(-2px); border-color: var(--rouge); }
-
-  .card-header {
-    background: var(--rouge);
-    padding: 8px 14px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .card-header-left {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 13px; letter-spacing: 2px; color: white;
-  }
-  .card-badge {
-    background: rgba(255,255,255,0.2);
-    padding: 3px 10px; border-radius: 12px;
-    font-size: 11px; font-weight: 600; color: white;
-  }
-  .card-badge.active { background: var(--or); color: var(--noir); }
-
-  .card-body {
-    padding: 16px;
-    display: flex; gap: 14px;
-  }
-
-  .child-photo {
-    width: 80px; height: 80px;
-    border-radius: 6px;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: #333;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-    border: 2px solid var(--rouge);
-  }
-
-  .child-info { flex: 1; }
-  .child-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 1px;
-    color: var(--blanc); line-height: 1; margin-bottom: 6px;
-  }
-  .info-row {
-    display: flex; gap: 12px; margin-bottom: 4px;
-    flex-wrap: wrap;
-  }
-  .info-chip {
-    font-size: 12px; color: var(--gris-clair);
-    display: flex; align-items: center; gap: 4px;
-  }
-  .info-chip strong { color: var(--blanc); }
-
-  .card-desc {
-    font-size: 12px; color: var(--gris-clair);
-    margin-top: 6px; line-height: 1.5;
-    border-top: 1px solid #333; padding-top: 8px;
-  }
-
-  .card-actions {
-    padding: 0 16px 16px;
-    display: flex; gap: 8px;
-  }
-
-  .btn-whatsapp {
-    flex: 1;
-    background: #25D366;
-    color: white; border: none;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 13px; font-weight: 600;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap-8px;
-    gap: 6px;
-    transition: background 0.2s;
-  }
-  .btn-whatsapp:hover { background: #1ebe59; }
-
-  .btn-appel {
-    flex: 1;
-    background: #2a2a2a;
-    color: var(--blanc); border: 1px solid #444;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 13px; font-weight: 600;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    transition: background 0.2s;
-  }
-  .btn-appel:hover { background: #333; }
-
-  /* ——— DÉTAIL ALERTE ——— */
-  #detail { background: var(--noir); }
-  .detail-content { flex: 1; overflow-y: auto; padding-bottom: 100px; }
-
-  .detail-back {
-    background: var(--gris-fonce);
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; border-bottom: 1px solid #2a2a2a;
-  }
-  .detail-back span { font-size: 14px; color: var(--gris-clair); }
-
-  .detail-hero {
-    background: linear-gradient(180deg, #2a0a07 0%, var(--noir) 100%);
-    padding: 24px 20px;
-    text-align: center;
-  }
-
-  .detail-photo {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    background: #333;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 52px;
-    border: 4px solid var(--rouge);
-    box-shadow: 0 0 30px rgba(192,57,43,0.4);
-  }
-
-  .urgency-badge {
-    display: inline-flex;
-    align-items: center; gap: 8px;
-    background: var(--rouge);
-    padding: 6px 16px; border-radius: 20px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 14px; letter-spacing: 2px;
-    margin-bottom: 12px;
-    animation: urgency-blink 1.5s step-end infinite;
-  }
-  @keyframes urgency-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-  .urgency-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
-
-  .detail-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 42px; letter-spacing: 3px;
-    color: var(--blanc); line-height: 1;
-  }
-
-  .detail-meta {
-    font-size: 14px; color: var(--gris-clair);
-    margin-top: 6px;
-  }
-
-  .info-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; padding: 20px;
-  }
-
-  .info-block {
-    background: var(--gris-fonce);
-    border-radius: 8px; padding: 14px;
-    border-left: 3px solid var(--rouge);
-  }
-  .info-block-label {
-    font-size: 10px; color: var(--gris-clair);
-    text-transform: uppercase; letter-spacing: 1.5px;
-    margin-bottom: 4px;
-  }
-  .info-block-value {
-    font-size: 15px; font-weight: 600; color: var(--blanc);
-  }
-
-  .desc-block {
-    margin: 0 20px 20px;
-    background: var(--gris-fonce);
-    border-radius: 8px; padding: 16px;
-    border-top: 3px solid var(--rouge);
-  }
-  .desc-block h4 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 2px;
-    color: var(--rouge); margin-bottom: 8px;
-  }
-  .desc-block p {
-    font-size: 14px; color: var(--gris-clair);
-    line-height: 1.7;
-  }
-
-  .action-panel {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--gris-fonce);
-    padding: 16px 20px;
-    border-top: 1px solid #2a2a2a;
-    display: flex; gap: 10px;
-  }
-
-  .btn-share-wa {
-    flex: 2;
-    background: #25D366;
-    color: white; border: none;
-    padding: 14px;
-    border-radius: 8px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; letter-spacing: 2px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .btn-share-wa:active { transform: scale(0.98); }
-  .btn-share-wa:hover { background: #1ebe59; }
-
-  .btn-call-em {
-    flex: 1;
-    background: var(--rouge);
-    color: white; border: none;
-    padding: 14px;
-    border-radius: 8px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; letter-spacing: 2px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .btn-call-em:hover { background: var(--rouge-vif); }
-
-  /* ——— SIGNALEMENT ——— */
-  #report { background: var(--noir); }
-  .report-content { flex: 1; padding: 20px 20px 100px; overflow-y: auto; }
-
-  .report-hero {
-    background: linear-gradient(135deg, #2a0a07, #1a0505);
-    border-radius: 12px; padding: 20px;
-    margin-bottom: 24px; text-align: center;
-    border: 1px solid #3a1010;
-  }
-  .report-hero h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px; letter-spacing: 3px; color: var(--blanc);
-  }
-  .report-hero p {
-    font-size: 13px; color: var(--gris-clair); margin-top: 6px;
-    line-height: 1.5;
-  }
-
-  .form-section { margin-bottom: 24px; }
-  .form-label {
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--rouge); margin-bottom: 8px; display: block;
-  }
-
-  .form-input {
-    width: 100%;
-    background: var(--gris-fonce);
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 14px 16px;
-    color: var(--blanc);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 15px;
-    transition: border-color 0.2s;
-    outline: none;
-  }
-  .form-input:focus { border-color: var(--rouge); }
-  .form-input::placeholder { color: #555; }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  .photo-upload {
-    width: 100%;
-    background: var(--gris-fonce);
-    border: 2px dashed #444;
-    border-radius: 8px;
-    padding: 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .photo-upload:hover { border-color: var(--rouge); }
-  .photo-upload-icon { font-size: 36px; margin-bottom: 8px; }
-  .photo-upload p { font-size: 13px; color: var(--gris-clair); }
-  .photo-upload strong { color: var(--rouge); }
-
-  .btn-submit {
-    width: 100%;
-    background: var(--rouge);
-    color: white; border: none;
-    padding: 18px;
-    border-radius: 8px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 3px;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    margin-top: 8px;
-  }
-  .btn-submit:hover {
-    background: var(--rouge-vif);
-    box-shadow: 0 8px 24px rgba(192,57,43,0.5);
-  }
-
-  /* ——— NAV BAS ——— */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--gris-fonce);
-    display: flex;
-    border-top: 1px solid #2a2a2a;
-    z-index: 200;
-  }
-
-  .nav-item {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 10px 0;
-    cursor: pointer; border: none;
-    background: transparent; color: var(--gris-clair);
-    font-size: 20px;
-    transition: color 0.2s;
-    position: relative;
-  }
-  .nav-item span {
-    font-size: 10px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    margin-top: 4px;
-  }
-  .nav-item.active { color: var(--rouge); }
-  .nav-item.active::after {
-    content: '';
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 24px; height: 3px;
-    background: var(--rouge); border-radius: 0 0 3px 3px;
-  }
-
-  /* Alerte urgente popup */
-  .urgent-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 500;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-    animation: overlay-in 0.3s ease;
-  }
-  @keyframes overlay-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .urgent-card {
-    background: var(--gris-fonce);
-    border-radius: 12px;
-    overflow: hidden;
-    width: 100%; max-width: 360px;
-    border: 2px solid var(--rouge);
-    box-shadow: 0 0 60px rgba(192,57,43,0.3);
-    animation: card-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes card-in {
-    from { transform: scale(0.8) translateY(30px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
-  }
-
-  .urgent-top {
-    background: var(--rouge);
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .urgent-top h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; letter-spacing: 3px; color: white; flex: 1;
-  }
-  .urgent-close {
-    background: rgba(255,255,255,0.2);
-    border: none; color: white;
-    width: 28px; height: 28px;
-    border-radius: 50%; cursor: pointer; font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .urgent-body { padding: 20px; text-align: center; }
-  .urgent-photo {
-    width: 100px; height: 100px;
-    border-radius: 50%; margin: 0 auto 12px;
-    background: #2a2a2a;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 44px;
-    border: 3px solid var(--rouge);
-  }
-  .urgent-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 32px; letter-spacing: 2px; color: var(--blanc);
-  }
-  .urgent-meta { font-size: 13px; color: var(--gris-clair); margin: 4px 0 14px; }
-  .urgent-desc {
-    background: #222; border-radius: 6px; padding: 12px;
-    font-size: 13px; color: var(--gris-clair); line-height: 1.6;
-    text-align: left; margin-bottom: 16px;
-  }
-  .urgent-actions { display: flex; flex-direction: column; gap: 8px; }
-
-  /* Toast notification */
-  .toast {
-    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-    background: #25D366; color: white;
-    padding: 12px 24px; border-radius: 24px;
-    font-weight: 600; font-size: 14px;
-    z-index: 600;
-    animation: toast-in 0.3s ease, toast-out 0.3s ease 2s forwards;
-    white-space: nowrap;
-  }
-  @keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-  @keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+:root {
+  --rouge:#C0392B; --rouge-vif:#E74C3C; --or:#F4D03F;
+  --vert:#196F3D; --noir:#0D0D0D; --gris-f:#1A1A1A;
+  --gris-c:#888; --blanc:#F5F0E8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',sans-serif;min-height:100vh}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* SPLASH */
+#splash{background:var(--noir);align-items:center;justify-content:center;position:relative;overflow:hidden}
+#splash::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(192,57,43,.25) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pglow 3s ease-in-out infinite}
+@keyframes pglow{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.15);opacity:1}}
+.splash-inner{text-align:center;z-index:1;animation:fup .8s ease forwards}
+@keyframes fup{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.logo-shield{width:90px;height:90px;background:var(--rouge);clip-path:polygon(50% 0%,100% 15%,100% 60%,50% 100%,0% 60%,0% 15%);display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.logo-shield span{font-family:'Bebas Neue',sans-serif;font-size:32px;color:white;letter-spacing:2px}
+.app-title{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:6px;line-height:1}
+.app-title span{color:var(--rouge)}
+.app-sub{font-size:15px;color:var(--gris-c);margin-top:8px;letter-spacing:1px}
+.flag{display:flex;gap:4px;justify-content:center;margin:20px 0 32px}
+.flag div{width:28px;height:4px;border-radius:2px}
+.btn-p{background:var(--rouge);color:white;border:none;padding:16px 48px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;border-radius:4px;cursor:pointer;display:block;width:100%;max-width:300px;margin:0 auto 12px}
+.btn-s{background:transparent;color:var(--gris-c);border:1px solid #333;padding:14px 48px;font-size:14px;border-radius:4px;cursor:pointer;display:block;width:100%;max-width:300px;margin:0 auto}
+
+/* APP BAR */
+.app-bar{background:var(--gris-f);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2a2a;position:sticky;top:0;z-index:100}
+.bar-logo{display:flex;align-items:center;gap:10px}
+.shield-sm{width:32px;height:32px;background:var(--rouge);clip-path:polygon(50% 0%,100% 15%,100% 60%,50% 100%,0% 60%,0% 15%);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:12px;color:white}
+.bar-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px}
+.bar-title span{color:var(--rouge)}
+.notif-btn{width:38px;height:38px;background:#2a2a2a;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:var(--gris-c);font-size:16px;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--rouge);border-radius:50%;border:2px solid var(--gris-f)}
+
+/* HOME */
+.scroll-area{flex:1;overflow-y:auto;padding-bottom:80px}
+.alert-banner{background:linear-gradient(135deg,#7B241C,#922B21);padding:16px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;border-left:4px solid var(--rouge-vif)}
+.banner-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.banner-text{flex:1}
+.banner-text strong{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;display:block;color:white}
+.banner-text span{font-size:12px;color:rgba(255,255,255,.75)}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#1f1f1f;margin-bottom:24px}
+.stat-item{background:var(--gris-f);padding:16px 12px;text-align:center}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--rouge);line-height:1}
+.stat-lbl{font-size:10px;color:var(--gris-c);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.sec-hdr{padding:0 20px 12px;display:flex;align-items:baseline;justify-content:space-between}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+
+/* CARD */
+.alert-card{margin:0 20px 16px;background:var(--gris-f);border-radius:8px;overflow:hidden;border:1px solid #2a2a2a;cursor:pointer;transition:transform .2s,border-color .2s}
+.alert-card:hover{transform:translateY(-2px);border-color:var(--rouge)}
+.card-hdr{background:var(--rouge);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.card-hdr-l{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:white}
+.badge{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:white}
+.badge.active{background:var(--or);color:var(--noir)}
+.card-body{padding:16px;display:flex;gap:14px}
+.child-photo{width:80px;height:80px;border-radius:6px;flex-shrink:0;background:#333;display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid var(--rouge);overflow:hidden}
+.child-photo img{width:100%;height:100%;object-fit:cover}
+.child-info{flex:1}
+.child-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;line-height:1;margin-bottom:6px}
+.info-row{display:flex;gap:12px;margin-bottom:4px;flex-wrap:wrap}
+.chip{font-size:12px;color:var(--gris-c);display:flex;align-items:center;gap:4px}
+.chip strong{color:var(--blanc)}
+.card-desc{font-size:12px;color:var(--gris-c);margin-top:6px;line-height:1.5;border-top:1px solid #333;padding-top:8px}
+.card-acts{padding:0 16px 16px;display:flex;gap:8px}
+.btn-wa{flex:1;background:#25D366;color:white;border:none;padding:10px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-tel{flex:1;background:#2a2a2a;color:var(--blanc);border:1px solid #444;padding:10px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+
+/* DETAIL */
+.back-bar{background:var(--gris-f);padding:14px 20px;cursor:pointer;border-bottom:1px solid #2a2a2a;font-size:14px;color:var(--gris-c)}
+.detail-hero{background:linear-gradient(180deg,#2a0a07 0%,var(--noir) 100%);padding:24px 20px;text-align:center}
+.detail-photo{width:120px;height:120px;border-radius:50%;margin:0 auto 16px;background:#333;display:flex;align-items:center;justify-content:center;font-size:52px;border:4px solid var(--rouge);overflow:hidden}
+.detail-photo img{width:100%;height:100%;object-fit:cover}
+.urg-badge{display:inline-flex;align-items:center;gap:8px;background:var(--rouge);padding:6px 16px;border-radius:20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;margin-bottom:12px;animation:ublink 1.5s step-end infinite}
+@keyframes ublink{0%,100%{opacity:1}50%{opacity:.7}}
+.urg-dot{width:8px;height:8px;background:white;border-radius:50%}
+.detail-name{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;line-height:1}
+.detail-meta{font-size:14px;color:var(--gris-c);margin-top:6px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px}
+.info-blk{background:var(--gris-f);border-radius:8px;padding:14px;border-left:3px solid var(--rouge)}
+.info-lbl{font-size:10px;color:var(--gris-c);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.info-val{font-size:15px;font-weight:600}
+.desc-blk{margin:0 20px 20px;background:var(--gris-f);border-radius:8px;padding:16px;border-top:3px solid var(--rouge)}
+.desc-blk h4{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--rouge);margin-bottom:8px}
+.desc-blk p{font-size:14px;color:var(--gris-c);line-height:1.7}
+.act-panel{position:fixed;bottom:0;left:0;right:0;background:var(--gris-f);padding:16px 20px;border-top:1px solid #2a2a2a;display:flex;gap:10px}
+.btn-wa-lg{flex:2;background:#25D366;color:white;border:none;padding:14px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer}
+.btn-tel-lg{flex:1;background:var(--rouge);color:white;border:none;padding:14px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer}
+
+/* FORM */
+.form-wrap{flex:1;padding:20px 20px 100px;overflow-y:auto}
+.form-hero{background:linear-gradient(135deg,#2a0a07,#1a0505);border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;border:1px solid #3a1010}
+.form-hero h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px}
+.form-hero p{font-size:13px;color:var(--gris-c);margin-top:6px;line-height:1.5}
+.f-sec{margin-bottom:20px}
+.f-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--rouge);margin-bottom:8px;display:block}
+.f-inp{width:100%;background:var(--gris-f);border:1px solid #333;border-radius:6px;padding:14px 16px;color:var(--blanc);font-family:'Instrument Sans',sans-serif;font-size:15px;transition:border-color .2s;outline:none}
+.f-inp:focus{border-color:var(--rouge)}
+.f-inp::placeholder{color:#555}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Photo */
+.photo-zone{background:var(--gris-f);border:2px dashed #444;border-radius:8px;padding:20px;text-align:center}
+.photo-zone p{font-size:13px;color:var(--gris-c);margin-bottom:14px}
+.pb{display:block;width:100%;padding:11px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;border:none;margin-bottom:8px;letter-spacing:1px}
+.pb.r{background:var(--rouge);color:white}
+.pb.d{background:#2a2a2a;color:var(--blanc);border:1px solid #555}
+.pb.o{background:transparent;color:var(--gris-c);border:1px dashed #444;font-size:12px}
+.photo-prev{border-radius:8px;overflow:hidden;border:2px solid var(--rouge);position:relative;display:none}
+.photo-prev img{width:100%;max-height:220px;object-fit:cover;display:block}
+.photo-prev-bar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.8));padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.photo-prev-bar span{font-size:12px;font-weight:700;color:white}
+.photo-prev-bar button{background:var(--rouge);color:white;border:none;padding:5px 12px;border-radius:4px;font-size:11px;cursor:pointer}
+
+/* Aperçu */
+.apercu-box{background:#111;border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;margin-bottom:20px;display:none}
+.apercu-box.on{display:block}
+.apercu-hdr{background:var(--rouge);padding:8px 14px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:white;display:flex;align-items:center;gap:8px}
+.ap-dot{width:8px;height:8px;background:white;border-radius:50%;animation:ublink 1s step-end infinite}
+.apercu-body{padding:14px;display:flex;gap:12px;align-items:center}
+.ap-photo{width:70px;height:70px;border-radius:6px;border:2px solid var(--rouge);flex-shrink:0;background:#222;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden}
+.ap-photo img{width:100%;height:100%;object-fit:cover}
+.ap-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px}
+.ap-meta{font-size:11px;color:var(--gris-c);margin-top:3px}
+.apercu-foot{padding:10px 14px;background:#0a0a0a;font-size:11px;color:var(--gris-c);border-top:1px solid #222;display:flex;align-items:center;justify-content:space-between}
+
+.btn-submit{width:100%;background:var(--rouge);color:white;border:none;padding:18px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;margin-top:8px;transition:all .2s}
+.btn-submit:disabled{opacity:.45;cursor:not-allowed}
+.btn-submit:not(:disabled):hover{background:var(--rouge-vif);box-shadow:0 8px 24px rgba(192,57,43,.5)}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--gris-f);display:flex;border-top:1px solid #2a2a2a;z-index:200}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;cursor:pointer;border:none;background:transparent;color:var(--gris-c);font-size:20px;transition:color .2s;position:relative}
+.nav-btn span{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.nav-btn.on{color:var(--rouge)}
+.nav-btn.on::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--rouge);border-radius:0 0 3px 3px}
+
+/* POPUP */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.urg-card{background:var(--gris-f);border-radius:12px;overflow:hidden;width:100%;max-width:360px;border:2px solid var(--rouge);box-shadow:0 0 60px rgba(192,57,43,.3);animation:cin .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cin{from{transform:scale(.8) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.urg-top{background:var(--rouge);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.urg-top h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:white;flex:1}
+.urg-close{background:rgba(255,255,255,.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.urg-body{padding:20px;text-align:center}
+.urg-photo{width:100px;height:100px;border-radius:50%;margin:0 auto 12px;background:#2a2a2a;display:flex;align-items:center;justify-content:center;font-size:44px;border:3px solid var(--rouge);overflow:hidden}
+.urg-photo img{width:100%;height:100%;object-fit:cover}
+.urg-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px}
+.urg-meta{font-size:13px;color:var(--gris-c);margin:4px 0 14px}
+.urg-desc{background:#222;border-radius:6px;padding:12px;font-size:13px;color:var(--gris-c);line-height:1.6;text-align:left;margin-bottom:16px}
+.urg-acts{display:flex;flex-direction:column;gap:8px}
+
+/* Toast */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#25D366;color:white;padding:12px 24px;border-radius:24px;font-weight:600;font-size:14px;z-index:600;white-space:nowrap;animation:tin .3s ease,tout .3s ease 2s forwards}
+@keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes tout{from{opacity:1}to{opacity:0}}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ SPLASH ═══════════════ -->
+<!-- SPLASH -->
 <div id="splash" class="screen active">
   <div class="splash-inner">
     <div class="logo-shield"><span>AO</span></div>
     <div class="app-title">ALERTE<span>ORPHÉE</span></div>
-    <div class="app-subtitle">Ensemble, protégeons nos enfants</div>
-    <div class="flag-stripe">
-      <div class="stripe vert"></div>
-      <div class="stripe rouge"></div>
-      <div class="stripe jaune"></div>
+    <div class="app-sub">Ensemble, protégeons nos enfants</div>
+    <div class="flag">
+      <div style="background:var(--vert)"></div>
+      <div style="background:var(--rouge)"></div>
+      <div style="background:var(--or)"></div>
     </div>
-    <button class="btn-primary" onclick="goTo('home')">ACTIVER LES ALERTES</button>
-    <button class="btn-secondary" onclick="goTo('home')">Je suis policier / autorité</button>
+    <button class="btn-p" onclick="goTo('home')">ACTIVER LES ALERTES</button>
+    <button class="btn-s" onclick="goTo('home')">Je suis policier / autorité</button>
   </div>
 </div>
 
-<!-- ═══════════════ ACCUEIL ═══════════════ -->
+<!-- ACCUEIL -->
 <div id="home" class="screen">
   <div class="app-bar">
-    <div class="app-bar-logo">
+    <div class="bar-logo">
       <div class="shield-sm">AO</div>
       <div class="bar-title">ALERTE<span>ORPHÉE</span></div>
     </div>
-    <button class="notif-bell" onclick="showUrgent()">
-      🔔
-      <div class="notif-dot"></div>
-    </button>
+    <button class="notif-btn" onclick="showUrgent()">🔔<div class="notif-dot"></div></button>
   </div>
-
-  <div class="home-content">
-    <!-- Bannière alerte en cours -->
+  <div class="scroll-area">
     <div class="alert-banner" onclick="goTo('detail')">
       <div class="banner-icon">🚨</div>
       <div class="banner-text">
-        <strong>ALERTE EN COURS — DOUALA</strong>
-        <span>Enfant disparu · Il y a 2 heures · Cliquez pour voir</span>
+        <strong id="bannerTitle">ALERTE EN COURS — DOUALA</strong>
+        <span id="bannerSub">Enfant disparu · Il y a 2 heures · Cliquez pour voir</span>
       </div>
-      <div class="banner-arrow">›</div>
+      <div style="color:rgba(255,255,255,.6);font-size:18px">›</div>
     </div>
-
-    <!-- Statistiques -->
     <div class="stats-row">
-      <div class="stat-item">
-        <div class="stat-num">47</div>
-        <div class="stat-label">Alertes totales</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" style="color: #2ecc71;">31</div>
-        <div class="stat-label">Enfants retrouvés</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">12K</div>
-        <div class="stat-label">Abonnés actifs</div>
-      </div>
+      <div class="stat-item"><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Alertes totales</div></div>
+      <div class="stat-item"><div class="stat-num" id="statRes" style="color:#2ecc71">—</div><div class="stat-lbl">Retrouvés</div></div>
+      <div class="stat-item"><div class="stat-num">12K</div><div class="stat-lbl">Abonnés</div></div>
     </div>
-
-    <!-- Alertes récentes -->
-    <div class="section-header">
-      <div class="section-title">ALERTES ACTIVES</div>
-      <div class="section-link" onclick="goTo('detail')">Voir tout →</div>
+    <div class="sec-hdr">
+      <div class="sec-title">ALERTES ACTIVES</div>
+      <div style="font-size:12px;color:var(--rouge);cursor:pointer" onclick="goTo('detail')">Voir tout →</div>
     </div>
-
-    <!-- Carte 1 — Alerte active -->
     <div class="alert-card" onclick="goTo('detail')">
-      <div class="card-header">
-        <div class="card-header-left">🚨 ALERTE ORPHÉE · DOUALA</div>
-        <div class="card-badge active">EN COURS</div>
+      <div class="card-hdr">
+        <div class="card-hdr-l">🚨 ALERTE ORPHÉE · DOUALA</div>
+        <div class="badge active">EN COURS</div>
       </div>
       <div class="card-body">
         <div class="child-photo">👧</div>
         <div class="child-info">
           <div class="child-name">AMINA BELLO</div>
-          <div class="info-row">
-            <div class="info-chip">🎂 <strong>8 ans</strong></div>
-            <div class="info-chip">📍 <strong>Bonanjo</strong></div>
-          </div>
-          <div class="info-row">
-            <div class="info-chip">⏱ <strong>Disparue il y a 2h</strong></div>
-          </div>
-          <div class="card-desc">Robe bleue, cheveux tressés. Vue pour la dernière fois près du marché.</div>
+          <div class="info-row"><div class="chip">🎂 <strong>8 ans</strong></div><div class="chip">📍 <strong>Bonanjo</strong></div></div>
+          <div class="card-desc">Robe bleue, cheveux tressés. Vue près du marché central.</div>
         </div>
       </div>
-      <div class="card-actions">
-        <button class="btn-whatsapp" onclick="event.stopPropagation(); showToast('📲 Message WhatsApp préparé !')">📲 Partager sur WhatsApp</button>
-        <button class="btn-appel" onclick="event.stopPropagation(); showToast('📞 Appel en cours...')">📞 Alerter</button>
+      <div class="card-acts">
+        <button class="btn-wa" onclick="event.stopPropagation();showToast('📲 Message WhatsApp préparé !')">📲 Partager WA</button>
+        <button class="btn-tel" onclick="event.stopPropagation();showToast('📞 Appel en cours...')">📞 116</button>
       </div>
     </div>
-
-    <!-- Carte 2 — Résolue -->
-    <div style="padding: 0 20px 8px;">
-      <div class="section-title" style="font-size:18px; margin-bottom: 12px;">RÉCEMMENT RETROUVÉS ✅</div>
-    </div>
-
-    <div class="alert-card" style="opacity: 0.7; cursor: default; margin-bottom: 32px;">
-      <div class="card-header" style="background: var(--vert);">
-        <div class="card-header-left">✅ RETROUVÉ · YAOUNDÉ</div>
-        <div class="card-badge">RÉSOLU</div>
-      </div>
-      <div class="card-body">
-        <div class="child-photo" style="border-color: var(--vert);">👦</div>
-        <div class="child-info">
-          <div class="child-name">KOUAM ERIC</div>
-          <div class="info-row">
-            <div class="info-chip">🎂 <strong>11 ans</strong></div>
-            <div class="info-chip">📍 <strong>Mfoundi</strong></div>
-          </div>
-          <div class="card-desc" style="color: #2ecc71;">Retrouvé sain et sauf après 6 heures grâce à 847 partages WhatsApp. Merci à tous ! 🙏</div>
-        </div>
-      </div>
-    </div>
+    <div id="listeFirebase"></div>
   </div>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" onclick="setNav(this, 'home')">🏠<span>Accueil</span></button>
-    <button class="nav-item" onclick="setNav(this, 'report')">📢<span>Signaler</span></button>
-    <button class="nav-item" onclick="setNav(this, 'home'); showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
-    <button class="nav-item" onclick="setNav(this, 'home'); showToast('Profil — Bientôt disponible')">👤<span>Profil</span></button>
+  <nav class="nav">
+    <button class="nav-btn on" onclick="setNav(this,'home')">🏠<span>Accueil</span></button>
+    <button class="nav-btn" onclick="setNav(this,'report')">📢<span>Signaler</span></button>
+    <button class="nav-btn" onclick="showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
+    <button class="nav-btn" onclick="showToast('Profil — Bientôt disponible')">👤<span>Profil</span></button>
   </nav>
 </div>
 
-<!-- ═══════════════ DÉTAIL ALERTE ═══════════════ -->
+<!-- DETAIL -->
 <div id="detail" class="screen">
   <div class="app-bar">
-    <div class="app-bar-logo">
-      <div class="shield-sm">AO</div>
-      <div class="bar-title">ALERTE<span>ORPHÉE</span></div>
-    </div>
+    <div class="bar-logo"><div class="shield-sm">AO</div><div class="bar-title">ALERTE<span>ORPHÉE</span></div></div>
   </div>
-
-  <div class="detail-content">
-    <div class="detail-back" onclick="goTo('home')">
-      <span>‹ Retour</span>
-    </div>
-
+  <div class="scroll-area" style="padding-bottom:100px">
+    <div class="back-bar" onclick="goTo('home')">‹ Retour</div>
     <div class="detail-hero">
-      <div class="urgency-badge">
-        <div class="urgency-dot"></div>
-        ALERTE ACTIVE
-      </div>
+      <div class="urg-badge"><div class="urg-dot"></div>ALERTE ACTIVE</div>
       <div class="detail-photo">👧</div>
       <div class="detail-name">AMINA BELLO</div>
-      <div class="detail-meta">Disparue il y a <strong style="color:var(--rouge)">2 heures</strong> · Douala, Cameroun</div>
+      <div class="detail-meta">Disparue il y a <strong style="color:var(--rouge)">2 heures</strong> · Douala</div>
     </div>
-
     <div class="info-grid">
-      <div class="info-block">
-        <div class="info-block-label">Âge</div>
-        <div class="info-block-value">8 ans</div>
-      </div>
-      <div class="info-block">
-        <div class="info-block-label">Taille</div>
-        <div class="info-block-value">1m 22</div>
-      </div>
-      <div class="info-block">
-        <div class="info-block-label">Quartier</div>
-        <div class="info-block-value">Bonanjo</div>
-      </div>
-      <div class="info-block">
-        <div class="info-block-label">Signalée à</div>
-        <div class="info-block-value">14h 32</div>
-      </div>
+      <div class="info-blk"><div class="info-lbl">Âge</div><div class="info-val">8 ans</div></div>
+      <div class="info-blk"><div class="info-lbl">Taille</div><div class="info-val">1m 22</div></div>
+      <div class="info-blk"><div class="info-lbl">Quartier</div><div class="info-val">Bonanjo</div></div>
+      <div class="info-blk"><div class="info-lbl">Signalée à</div><div class="info-val">14h 32</div></div>
     </div>
-
-    <div class="desc-block">
-      <h4>DESCRIPTION</h4>
-      <p>Amina portait une robe bleue à fleurs blanches et des sandales dorées au moment de sa disparition. Elle a des cheveux nattés avec des perles rouges. Elle a été vue pour la dernière fois près du marché central de Bonanjo vers 14h00.</p>
-    </div>
-
-    <div class="desc-block">
-      <h4>CONTACT D'URGENCE</h4>
-      <p>👨‍👩‍👧 Parent : <strong style="color:var(--blanc)">+237 6XX XXX XXX</strong><br>
-      🚔 Police Bonanjo : <strong style="color:var(--blanc)">+237 222 XXX XXX</strong><br>
-      📞 Numéro national enfance : <strong style="color:var(--rouge)">116</strong></p>
-    </div>
-
-    <div class="desc-block" style="border-top-color: #2ecc71;">
-      <h4 style="color: #2ecc71;">DIFFUSION EN TEMPS RÉEL</h4>
-      <p>🔁 <strong style="color:var(--blanc)">1 247</strong> partages WhatsApp<br>
-      👁️ <strong style="color:var(--blanc)">8 432</strong> personnes informées<br>
-      📍 <strong style="color:var(--blanc)">3</strong> témoignages reçus</p>
-    </div>
+    <div class="desc-blk"><h4>DESCRIPTION</h4><p>Robe bleue à fleurs blanches, sandales dorées, cheveux nattés avec perles rouges. Vue pour la dernière fois près du marché central de Bonanjo.</p></div>
+    <div class="desc-blk"><h4>CONTACT D'URGENCE</h4><p>👨‍👩‍👧 Parent : <strong style="color:var(--blanc)">+237 6XX XXX XXX</strong><br>📞 Urgence nationale : <strong style="color:var(--rouge)">116</strong></p></div>
+    <div class="desc-blk" style="border-top-color:#2ecc71"><h4 style="color:#2ecc71">DIFFUSION TEMPS RÉEL</h4><p>🔁 <strong>1 247</strong> partages WA · 👁️ <strong>8 432</strong> vues · 📍 <strong>3</strong> témoignages</p></div>
   </div>
-
-  <div class="action-panel">
-    <button class="btn-share-wa" onclick="showToast('📲 Partage WhatsApp envoyé à vos contacts !')">📲 PARTAGER WHATSAPP</button>
-    <button class="btn-call-em" onclick="showToast('📞 Appel vers le 116...')">📞 116</button>
+  <div class="act-panel">
+    <button class="btn-wa-lg" onclick="showToast('📲 Partagé sur WhatsApp !')">📲 PARTAGER WHATSAPP</button>
+    <button class="btn-tel-lg" onclick="showToast('📞 Appel 116...')">📞 116</button>
   </div>
 </div>
 
-<!-- ═══════════════ SIGNALEMENT ═══════════════ -->
+<!-- SIGNALEMENT -->
 <div id="report" class="screen">
   <div class="app-bar">
-    <div class="app-bar-logo">
-      <div class="shield-sm">AO</div>
-      <div class="bar-title">ALERTE<span>ORPHÉE</span></div>
-    </div>
+    <div class="bar-logo"><div class="shield-sm">AO</div><div class="bar-title">ALERTE<span>ORPHÉE</span></div></div>
   </div>
-
-  <div class="report-content">
-    <div class="report-hero">
-      <div style="font-size:32px; margin-bottom:10px;">🚨</div>
+  <div class="form-wrap">
+    <div class="form-hero">
+      <div style="font-size:32px;margin-bottom:10px">🚨</div>
       <h2>SIGNALER UNE DISPARITION</h2>
-      <p>Cette alerte sera diffusée immédiatement aux <strong style="color:var(--rouge)">12 000+</strong> abonnés Alerte Orphée sur tout le Cameroun.</p>
+      <p>Diffusée immédiatement aux <strong style="color:var(--rouge)">12 000+</strong> abonnés sur tout le Cameroun.</p>
     </div>
 
-    <div class="form-section">
-      <label class="form-label">📸 Photo de l'enfant *</label>
-      <div class="photo-upload">
-        <div class="photo-upload-icon">📷</div>
-        <p>Appuyez pour ajouter une photo<br><strong>La photo est essentielle pour l'identification</strong></p>
+    <!-- Photo -->
+    <div class="f-sec">
+      <label class="f-lbl">📸 Photo <span style="color:var(--gris-c);font-weight:400;text-transform:none;letter-spacing:0">(recommandée)</span></label>
+      <input type="file" id="inpGalerie" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+      <input type="file" id="inpCamera" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
+      <div id="photoZone" class="photo-zone">
+        <p>Choisissez une option :</p>
+        <button class="pb r" onclick="document.getElementById('inpGalerie').click()">📁 GALERIE — Choisir une photo</button>
+        <button class="pb d" onclick="document.getElementById('inpCamera').click()">📸 CAMÉRA — Prendre une photo</button>
+        <button class="pb o" onclick="photoTest()">🧪 Photo de test (démo)</button>
+      </div>
+      <div id="photoPrev" class="photo-prev">
+        <img id="photoImg" src="" alt="Photo">
+        <div class="photo-prev-bar">
+          <span>✅ Photo sélectionnée</span>
+          <button onclick="resetPhoto()">CHANGER</button>
+        </div>
       </div>
     </div>
 
-    <div class="form-section">
-      <label class="form-label">Nom complet de l'enfant *</label>
-      <input class="form-input" type="text" placeholder="Ex : Marie Ngo Balla">
+    <div class="f-sec">
+      <label class="f-lbl">Nom complet *</label>
+      <input class="f-inp" id="fNom" type="text" placeholder="Ex : Marie Ngo Balla" oninput="majApercu()">
     </div>
-
-    <div class="form-section">
-      <div class="form-row">
+    <div class="f-sec">
+      <div class="f-row">
         <div>
-          <label class="form-label">Âge *</label>
-          <input class="form-input" type="number" placeholder="Ex : 9">
+          <label class="f-lbl">Âge *</label>
+          <input class="f-inp" id="fAge" type="number" placeholder="9" oninput="majApercu()">
         </div>
         <div>
-          <label class="form-label">Sexe *</label>
-          <select class="form-input">
+          <label class="f-lbl">Sexe</label>
+          <select class="f-inp" id="fSexe" onchange="majApercu()">
             <option value="" disabled selected>Choisir</option>
             <option>Fille</option>
             <option>Garçon</option>
@@ -933,94 +337,209 @@
         </div>
       </div>
     </div>
-
-    <div class="form-section">
-      <label class="form-label">Lieu de disparition *</label>
-      <input class="form-input" type="text" placeholder="Ex : Marché Mfoundi, Yaoundé">
+    <div class="f-sec">
+      <label class="f-lbl">Lieu de disparition *</label>
+      <input class="f-inp" id="fLieu" type="text" placeholder="Ex : Marché Mfoundi, Yaoundé" oninput="majApercu()">
+    </div>
+    <div class="f-sec">
+      <label class="f-lbl">Description</label>
+      <textarea class="f-inp" id="fDesc" rows="3" placeholder="Vêtements, signes particuliers..." oninput="majApercu()"></textarea>
+    </div>
+    <div class="f-sec">
+      <label class="f-lbl">Numéro à contacter</label>
+      <input class="f-inp" id="fTel" type="tel" placeholder="+237 6XX XXX XXX">
     </div>
 
-    <div class="form-section">
-      <label class="form-label">Description (vêtements, signes particuliers)</label>
-      <textarea class="form-input" rows="3" placeholder="Ex : Robe rouge, cheveux courts, cicatrice sur le bras gauche..."></textarea>
+    <!-- Aperçu -->
+    <div id="apercu" class="apercu-box">
+      <div class="apercu-hdr"><div class="ap-dot"></div>APERÇU — CE QUE VERRONT LES ABONNÉS</div>
+      <div class="apercu-body">
+        <div class="ap-photo" id="apPhoto">👶</div>
+        <div>
+          <div class="ap-name" id="apNom">NOM DE L'ENFANT</div>
+          <div class="ap-meta" id="apMeta">— ans</div>
+          <div class="ap-meta" id="apLieu" style="color:var(--rouge)">📍 —</div>
+        </div>
+      </div>
+      <div class="apercu-foot">
+        <span id="apDesc" style="flex:1;margin-right:10px;font-style:italic">Description…</span>
+        <button style="background:#25D366;color:white;border:none;padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700">📲 WA</button>
+      </div>
     </div>
 
-    <div class="form-section">
-      <label class="form-label">Numéro à contacter *</label>
-      <input class="form-input" type="tel" placeholder="+237 6XX XXX XXX">
-    </div>
-
-    <button class="btn-submit" onclick="showToast('🚨 Alerte envoyée à 12 000+ personnes !')">🚨 LANCER L'ALERTE MAINTENANT</button>
+    <button class="btn-submit" id="btnEnvoyer" onclick="envoyerAlerte()" disabled>🚨 LANCER L'ALERTE MAINTENANT</button>
+    <p style="text-align:center;font-size:11px;color:var(--gris-c);margin-top:8px">L'alerte sera validée par un opérateur avant diffusion</p>
   </div>
-
-  <nav class="bottom-nav">
-    <button class="nav-item" onclick="setNav(this, 'home')">🏠<span>Accueil</span></button>
-    <button class="nav-item active" onclick="setNav(this, 'report')">📢<span>Signaler</span></button>
-    <button class="nav-item" onclick="showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
-    <button class="nav-item" onclick="showToast('Profil — Bientôt disponible')">👤<span>Profil</span></button>
+  <nav class="nav">
+    <button class="nav-btn" onclick="setNav(this,'home')">🏠<span>Accueil</span></button>
+    <button class="nav-btn on" onclick="setNav(this,'report')">📢<span>Signaler</span></button>
+    <button class="nav-btn" onclick="showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
+    <button class="nav-btn" onclick="showToast('Profil — Bientôt disponible')">👤<span>Profil</span></button>
   </nav>
 </div>
 
-<!-- ═══════════════ POPUP ALERTE URGENTE ═══════════════ -->
-<div id="urgentOverlay" class="urgent-overlay" style="display:none;" onclick="closeUrgent(event)">
-  <div class="urgent-card">
-    <div class="urgent-top">
-      <span style="font-size:20px;">🚨</span>
+<!-- POPUP URGENTE -->
+<div id="popupOverlay" class="overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="urg-card">
+    <div class="urg-top">
+      <span style="font-size:20px">🚨</span>
       <h3>NOUVELLE ALERTE ORPHÉE</h3>
-      <button class="urgent-close" onclick="document.getElementById('urgentOverlay').style.display='none'">✕</button>
+      <button class="urg-close" onclick="document.getElementById('popupOverlay').style.display='none'">✕</button>
     </div>
-    <div class="urgent-body">
-      <div class="urgent-photo">👧</div>
-      <div class="urgent-name">AMINA BELLO</div>
-      <div class="urgent-meta">8 ans · Bonanjo, Douala · Il y a 2 minutes</div>
-      <div class="urgent-desc">
-        Disparue aux alentours du marché central. Robe bleue, cheveux tressés avec perles rouges. Si vous avez une information, contactez immédiatement le 116.
-      </div>
-      <div class="urgent-actions">
-        <button class="btn-share-wa" onclick="showToast('📲 Partagé sur WhatsApp !'); document.getElementById('urgentOverlay').style.display='none'">📲 PARTAGER SUR WHATSAPP</button>
-        <button class="btn-call-em" onclick="showToast('📞 Appel vers le 116...'); document.getElementById('urgentOverlay').style.display='none'">📞 APPELER LE 116</button>
+    <div class="urg-body">
+      <div class="urg-photo" id="uPhoto">👧</div>
+      <div class="urg-name" id="uNom">AMINA BELLO</div>
+      <div class="urg-meta" id="uMeta">8 ans · Bonanjo, Douala · Il y a 2 min</div>
+      <div class="urg-desc" id="uDesc">Robe bleue, cheveux tressés. Si vous avez une information, contactez le 116 immédiatement.</div>
+      <div class="urg-acts">
+        <button class="btn-wa-lg" onclick="showToast('📲 Partagé sur WhatsApp !');document.getElementById('popupOverlay').style.display='none'">📲 PARTAGER SUR WHATSAPP</button>
+        <button class="btn-tel-lg" onclick="showToast('📞 Appel 116...');document.getElementById('popupOverlay').style.display='none'">📞 APPELER LE 116</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  function goTo(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    window.scrollTo(0, 0);
-  }
+/* NAVIGATION */
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function setNav(el,id){
+  document.querySelectorAll('.nav-btn').forEach(function(n){n.classList.remove('on')});
+  el.classList.add('on');
+  goTo(id);
+}
 
-  function setNav(el, screenId) {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-    goTo(screenId);
-  }
+/* TOAST */
+function showToast(msg){
+  var old=document.querySelector('.toast');
+  if(old)old.remove();
+  var t=document.createElement('div');
+  t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},2700);
+}
 
-  function showToast(msg) {
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2700);
-  }
+/* POPUP */
+function showUrgent(){document.getElementById('popupOverlay').style.display='flex';}
+document.querySelectorAll('.btn-p,.btn-s').forEach(function(b){
+  b.addEventListener('click',function(){setTimeout(showUrgent,1200);});
+});
 
-  function showUrgent() {
-    document.getElementById('urgentOverlay').style.display = 'flex';
-  }
+/* PHOTO */
+var photoData=null;
+function handlePhoto(inp){
+  var file=inp.files[0];
+  if(!file)return;
+  if(!file.type.startsWith('image/')){showToast('⚠️ Choisissez une image');return;}
+  var r=new FileReader();
+  r.onload=function(e){
+    photoData=e.target.result;
+    showPhoto(photoData);
+    showToast('✅ Photo ajoutée !');
+  };
+  r.readAsDataURL(file);
+}
+function photoTest(){
+  var c=document.createElement('canvas');
+  c.width=200;c.height=200;
+  var x=c.getContext('2d');
+  x.fillStyle='#C0392B';x.fillRect(0,0,200,200);
+  x.font='90px serif';x.textAlign='center';x.textBaseline='middle';
+  x.fillText('👧',100,100);
+  photoData=c.toDataURL('image/png');
+  showPhoto(photoData);
+  showToast('🧪 Photo de test ajoutée !');
+}
+function showPhoto(src){
+  document.getElementById('photoZone').style.display='none';
+  document.getElementById('photoImg').src=src;
+  document.getElementById('photoPrev').style.display='block';
+  majApercu();
+}
+function resetPhoto(){
+  photoData=null;
+  document.getElementById('photoZone').style.display='block';
+  document.getElementById('photoPrev').style.display='none';
+  document.getElementById('inpGalerie').value='';
+  document.getElementById('inpCamera').value='';
+  majApercu();
+}
 
-  function closeUrgent(e) {
-    if (e.target === document.getElementById('urgentOverlay'))
-      document.getElementById('urgentOverlay').style.display = 'none';
-  }
+/* APERÇU */
+function majApercu(){
+  var nom=document.getElementById('fNom').value.trim();
+  var age=document.getElementById('fAge').value.trim();
+  var sexe=document.getElementById('fSexe').value;
+  var lieu=document.getElementById('fLieu').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  if(nom||photoData)document.getElementById('apercu').classList.add('on');
+  var ap=document.getElementById('apPhoto');
+  if(photoData){ap.innerHTML='<img src="'+photoData+'" alt="">';}
+  else{ap.innerHTML=sexe==='Fille'?'👧':sexe==='Garçon'?'👦':'👶';}
+  document.getElementById('apNom').textContent=nom?nom.toUpperCase():"NOM DE L'ENFANT";
+  document.getElementById('apMeta').textContent=(age?age+' ans':'—')+(sexe?' · '+sexe:'');
+  document.getElementById('apLieu').textContent=lieu?'📍 '+lieu:'📍 —';
+  document.getElementById('apDesc').textContent=desc?(desc.length>80?desc.substring(0,80)+'…':desc):'Description…';
+  document.getElementById('btnEnvoyer').disabled=!(nom&&age&&lieu);
+}
 
-  // Simuler une notif push au démarrage de l'accueil
-  document.querySelectorAll('.btn-primary, .btn-secondary').forEach(b => {
-    b.addEventListener('click', () => {
-      setTimeout(() => showUrgent(), 1200);
-    });
+/* ENVOYER → FIREBASE */
+function envoyerAlerte(){
+  var nom=document.getElementById('fNom').value.trim();
+  var age=document.getElementById('fAge').value.trim();
+  var sexe=document.getElementById('fSexe').value;
+  var lieu=document.getElementById('fLieu').value.trim();
+  var desc=document.getElementById('fDesc').value.trim();
+  var tel=document.getElementById('fTel').value.trim();
+  if(!nom||!age||!lieu){showToast('⚠️ Remplis nom, âge et lieu');return;}
+  var btn=document.getElementById('btnEnvoyer');
+  btn.textContent='⏳ ENVOI EN COURS…';
+  btn.disabled=true;
+  db.collection('alertes').add({
+    nom:nom, age:parseInt(age), sexe:sexe,
+    lieu:lieu, description:desc, telephone:tel,
+    photo:photoData||null, statut:'en_attente',
+    dateCreation:new Date().toISOString(),
+    partagesWhatsApp:0, vues:0
+  }).then(function(ref){
+    console.log('✅ ID Firebase:',ref.id);
+    showToast('🚨 Alerte transmise — en attente de validation !');
+    btn.textContent='✅ ALERTE TRANSMISE';
+    btn.style.background='var(--vert)';
+    document.getElementById('uNom').textContent=nom.toUpperCase();
+    document.getElementById('uMeta').textContent=age+' ans · '+lieu+' · Il y a quelques secondes';
+    document.getElementById('uDesc').textContent=desc||'Aucune description fournie.';
+    if(photoData){document.getElementById('uPhoto').innerHTML='<img src="'+photoData+'">';}
+    setTimeout(showUrgent,2000);
+  }).catch(function(err){
+    console.error('Firebase:',err);
+    showToast('❌ Erreur — vérifie ta connexion');
+    btn.textContent='🚨 LANCER L\'ALERTE MAINTENANT';
+    btn.disabled=false;
   });
+}
+
+/* FIREBASE — TEMPS RÉEL */
+function startFirebaseListeners(){
+db.collection('alertes')
+  .orderBy('dateCreation','desc')
+  .limit(20)
+  .onSnapshot(function(snap){
+    var alertes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    document.getElementById('statTotal').textContent=alertes.length;
+    document.getElementById('statRes').textContent=alertes.filter(function(a){return a.statut==='resolue';}).length;
+    var actives=alertes.filter(function(a){return a.statut!=='resolue';});
+    if(actives.length>0){
+      var a=actives[0];
+      document.getElementById('bannerTitle').textContent='ALERTE EN COURS — '+a.lieu.toUpperCase();
+      var diff=Math.round((Date.now()-new Date(a.dateCreation))/60000);
+      document.getElementById('bannerSub').textContent=a.nom+' · '+a.age+' ans · Il y a '+(diff<1?'quelques secondes':diff+' min');
+    }
+  },function(err){console.warn('Snapshot:',err);});
+}
 </script>
 </body>
 </html>
