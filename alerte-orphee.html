@@ -192,6 +192,21 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
       safari_web_id: "web.onesignal.auto.21fd847c-14e1-48c8-a072-78170e2e9023",
       notifyButton: {
         enable: true,
+        displayPredicate: function() { return true; },
+      },
+      promptOptions: {
+        slidedown: {
+          prompts: [{
+            type: "push",
+            autoPrompt: true,
+            text: {
+              actionMessage: "Recevez les alertes enlèvement d'enfants au Cameroun instantanément.",
+              acceptButton: "AUTORISER",
+              cancelButton: "Non merci"
+            },
+            delay: { pageViews: 1, timeDelay: 2 }
+          }]
+        }
       },
     });
   });
