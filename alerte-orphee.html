@@ -182,6 +182,20 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 </style>
+<!-- OneSignal Notifications -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "379ddc95-765a-4053-8bac-385c161cce26",
+      safari_web_id: "web.onesignal.auto.21fd847c-14e1-48c8-a072-78170e2e9023",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
 </head>
 <body>
 
