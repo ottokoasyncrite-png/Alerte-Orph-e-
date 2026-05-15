@@ -558,15 +558,71 @@ db.collection('alertes')
   .limit(20)
   .onSnapshot(function(snap){
     var alertes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+
+    // Stats
     document.getElementById('statTotal').textContent=alertes.length;
     document.getElementById('statRes').textContent=alertes.filter(function(a){return a.statut==='resolue';}).length;
-    var actives=alertes.filter(function(a){return a.statut!=='resolue';});
-    if(actives.length>0){
-      var a=actives[0];
+
+    // Bannière — alerte validée la plus récente
+    var validees=alertes.filter(function(a){return a.statut==='validee';});
+    if(validees.length>0){
+      var a=validees[0];
       document.getElementById('bannerTitle').textContent='ALERTE EN COURS — '+a.lieu.toUpperCase();
       var diff=Math.round((Date.now()-new Date(a.dateCreation))/60000);
       document.getElementById('bannerSub').textContent=a.nom+' · '+a.age+' ans · Il y a '+(diff<1?'quelques secondes':diff+' min');
     }
+
+    // Afficher les alertes Firebase dans la liste
+    var liste=document.getElementById('listeFirebase');
+    liste.innerHTML='';
+
+    if(alertes.length===0){ return; }
+
+    // Titre section Firebase
+    var titreDiv=document.createElement('div');
+    titreDiv.style.cssText='padding:0 20px 8px; margin-top:8px;';
+    titreDiv.innerHTML='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:2px;color:var(--blanc)">ALERTES FIREBASE EN DIRECT 🔴</div>';
+    liste.appendChild(titreDiv);
+
+    alertes.forEach(function(a){
+      var diff=Math.round((Date.now()-new Date(a.dateCreation))/60000);
+      var diffTxt=diff<1?'quelques secondes':diff<60?diff+' min':Math.round(diff/60)+'h';
+
+      var statutColor = a.statut==='validee' ? 'var(--rouge)' : a.statut==='resolue' ? 'var(--vert)' : '#888';
+      var statutTxt = a.statut==='validee' ? 'EN COURS' : a.statut==='resolue' ? 'RETROUVÉ ✅' : 'EN ATTENTE';
+      var badgeColor = a.statut==='validee' ? '#C0392B' : a.statut==='resolue' ? '#196F3D' : '#555';
+
+      var photoHtml = a.photo
+        ? '<img src="'+a.photo+'" style="width:100%;height:100%;object-fit:cover;">'
+        : (a.sexe==='Fille'?'👧':'👦');
+
+      var card=document.createElement('div');
+      card.className='alert-card';
+      card.style.cssText='margin:0 20px 16px;';
+      card.innerHTML=
+        '<div class="card-hdr" style="background:'+badgeColor+';">'+
+          '<div class="card-hdr-l">🚨 ALERTE ORPHÉE · '+a.lieu.toUpperCase()+'</div>'+
+          '<div class="badge active">'+statutTxt+'</div>'+
+        '</div>'+
+        '<div class="card-body">'+
+          '<div class="child-photo">'+photoHtml+'</div>'+
+          '<div class="child-info">'+
+            '<div class="child-name">'+a.nom.toUpperCase()+'</div>'+
+            '<div class="info-row">'+
+              '<div class="chip">🎂 <strong>'+a.age+' ans</strong></div>'+
+              '<div class="chip">📍 <strong>'+a.lieu+'</strong></div>'+
+            '</div>'+
+            '<div class="info-row"><div class="chip">⏱ <strong>Il y a '+diffTxt+'</strong></div></div>'+
+            (a.description?'<div class="card-desc">'+a.description+'</div>':'')+
+          '</div>'+
+        '</div>'+
+        '<div class="card-acts">'+
+          '<button class="btn-wa" onclick="showToast(\'📲 Message WhatsApp préparé !\')">📲 Partager WA</button>'+
+          '<button class="btn-tel" onclick="showToast(\'📞 Appel en cours...\')">📞 '+(a.telephone||'116')+'</button>'+
+        '</div>';
+      liste.appendChild(card);
+    });
+
   },function(err){console.warn('Snapshot:',err);});
 }
 </script>
