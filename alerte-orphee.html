@@ -554,7 +554,6 @@ function envoyerAlerte(){
 /* FIREBASE — TEMPS RÉEL */
 function startFirebaseListeners(){
 db.collection('alertes')
-  .orderBy('dateCreation','desc')
   .limit(20)
   .onSnapshot(function(snap){
     var alertes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
