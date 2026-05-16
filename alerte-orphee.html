@@ -281,7 +281,7 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
     <button class="nav-btn on" onclick="setNav(this,'home')">🏠<span>Accueil</span></button>
     <button class="nav-btn" onclick="setNav(this,'report')">📢<span>Signaler</span></button>
     <button class="nav-btn" onclick="showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
-    <button class="nav-btn" onclick="showToast('Profil — Bientôt disponible')">👤<span>Profil</span></button>
+    <button class="nav-btn" onclick="setNav(this,'profil')">👤<span>Profil</span></button>
   </nav>
 </div>
 
@@ -403,7 +403,89 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
     <button class="nav-btn" onclick="setNav(this,'home')">🏠<span>Accueil</span></button>
     <button class="nav-btn on" onclick="setNav(this,'report')">📢<span>Signaler</span></button>
     <button class="nav-btn" onclick="showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
-    <button class="nav-btn" onclick="showToast('Profil — Bientôt disponible')">👤<span>Profil</span></button>
+    <button class="nav-btn" onclick="setNav(this,'profil')">👤<span>Profil</span></button>
+  </nav>
+</div>
+
+<!-- PROFIL -->
+<div id="profil" class="screen">
+  <div class="app-bar">
+    <div class="bar-logo"><div class="shield-sm">AO</div><div class="bar-title">ALERTE<span>ORPHÉE</span></div></div>
+  </div>
+  <div class="form-wrap" id="profilContent">
+    <!-- Affiché si pas encore inscrit -->
+    <div id="profilInscription">
+      <div class="form-hero">
+        <div style="font-size:32px;margin-bottom:10px">👤</div>
+        <h2>MON PROFIL</h2>
+        <p>Inscrivez-vous pour recevoir les alertes et contribuer à la protection des enfants camerounais.</p>
+      </div>
+      <div class="f-sec">
+        <label class="f-lbl">Nom complet *</label>
+        <input class="f-inp" id="pNom" type="text" placeholder="Ex : Jean Dupont">
+      </div>
+      <div class="f-sec">
+        <label class="f-lbl">Numéro de téléphone *</label>
+        <input class="f-inp" id="pTel" type="tel" placeholder="+237 6XX XXX XXX">
+      </div>
+      <div class="f-sec">
+        <label class="f-lbl">Ville *</label>
+        <input class="f-inp" id="pVille" type="text" placeholder="Ex : Douala">
+      </div>
+      <div class="f-sec">
+        <label class="f-lbl">Je suis</label>
+        <select class="f-inp" id="pRole">
+          <option value="citoyen">Citoyen(ne)</option>
+          <option value="policier">Policier / Gendarme</option>
+          <option value="parent">Parent</option>
+          <option value="medecin">Médecin / Infirmier</option>
+          <option value="journaliste">Journaliste</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <button class="btn-submit" onclick="sinscrire()">✅ S'INSCRIRE AUX ALERTES</button>
+    </div>
+
+    <!-- Affiché après inscription -->
+    <div id="profilInfos" style="display:none">
+      <div style="background:linear-gradient(135deg,#1a6b35,#0d3d1e);border-radius:12px;padding:24px;text-align:center;margin-bottom:20px;">
+        <div style="width:80px;height:80px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px">👤</div>
+        <div id="pAffNom" style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:white"></div>
+        <div id="pAffVille" style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px"></div>
+        <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:6px 16px;display:inline-block;margin-top:8px;">
+          <span style="font-size:12px;color:white;font-weight:700">🔔 ABONNÉ AUX ALERTES</span>
+        </div>
+      </div>
+
+      <div style="background:var(--gris-f);border-radius:8px;padding:16px;margin-bottom:16px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--rouge);margin-bottom:12px;">MES INFORMATIONS</div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #333;">
+          <span style="color:var(--gris-c);font-size:13px">Téléphone</span>
+          <span id="pAffTel" style="color:var(--blanc);font-size:13px;font-weight:600"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #333;">
+          <span style="color:var(--gris-c);font-size:13px">Rôle</span>
+          <span id="pAffRole" style="color:var(--blanc);font-size:13px;font-weight:600"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;">
+          <span style="color:var(--gris-c);font-size:13px">Membre depuis</span>
+          <span id="pAffDate" style="color:var(--blanc);font-size:13px;font-weight:600"></span>
+        </div>
+      </div>
+
+      <div style="background:var(--gris-f);border-radius:8px;padding:16px;margin-bottom:20px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--rouge);margin-bottom:8px;">MA CONTRIBUTION</div>
+        <p style="font-size:13px;color:var(--gris-c);line-height:1.6">En étant abonné à Alerte Orphée, vous faites partie d'un réseau de <strong style="color:var(--blanc)">citoyens engagés</strong> pour la protection des enfants camerounais. Chaque partage peut sauver une vie. 🇨🇲</p>
+      </div>
+
+      <button class="btn-submit" style="background:#333;font-size:16px;" onclick="seDeconnecter()">🚪 SE DÉCONNECTER</button>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn" onclick="setNav(this,'home')">🏠<span>Accueil</span></button>
+    <button class="nav-btn" onclick="setNav(this,'report')">📢<span>Signaler</span></button>
+    <button class="nav-btn" onclick="showToast('Carte — Bientôt disponible')">🗺️<span>Carte</span></button>
+    <button class="nav-btn on" onclick="setNav(this,'profil')">👤<span>Profil</span></button>
   </nav>
 </div>
 
@@ -544,6 +626,58 @@ function majApercu(){
   document.getElementById('apLieu').textContent=lieu?'📍 '+lieu:'📍 —';
   document.getElementById('apDesc').textContent=desc?(desc.length>80?desc.substring(0,80)+'…':desc):'Description…';
   document.getElementById('btnEnvoyer').disabled=!(nom&&age&&lieu);
+}
+
+/* PROFIL — INSCRIPTION */
+function sinscrire() {
+  var nom   = document.getElementById('pNom').value.trim();
+  var tel   = document.getElementById('pTel').value.trim();
+  var ville = document.getElementById('pVille').value.trim();
+  var role  = document.getElementById('pRole').value;
+  if(!nom || !tel || !ville) { showToast('⚠️ Remplis tous les champs'); return; }
+
+  var profil = { nom:nom, telephone:tel, ville:ville, role:role, dateInscription: new Date().toLocaleDateString('fr-FR') };
+  localStorage.setItem('alerteOrphee_profil', JSON.stringify(profil));
+
+  // Sauvegarder aussi dans Firebase
+  db.collection('abonnes').add({
+    nom:nom, telephone:tel, ville:ville, role:role,
+    dateInscription: new Date().toISOString()
+  }).catch(function(e){ console.warn('Profil Firebase:', e); });
+
+  afficherProfil(profil);
+  showToast('✅ Inscription réussie ! Bienvenue ' + nom + ' !');
+
+  // Mettre à jour le compteur abonnés
+  db.collection('abonnes').get().then(function(snap){
+    var count = snap.size;
+    document.querySelectorAll('.stat-num').forEach(function(el,i){
+      if(i===2) el.textContent = count > 1000 ? Math.round(count/1000)+'K' : count;
+    });
+  }).catch(function(e){});
+}
+
+function afficherProfil(profil) {
+  document.getElementById('profilInscription').style.display = 'none';
+  document.getElementById('profilInfos').style.display = 'block';
+  document.getElementById('pAffNom').textContent  = profil.nom.toUpperCase();
+  document.getElementById('pAffVille').textContent = '📍 ' + profil.ville;
+  document.getElementById('pAffTel').textContent  = profil.telephone;
+  document.getElementById('pAffRole').textContent = profil.role.charAt(0).toUpperCase() + profil.role.slice(1);
+  document.getElementById('pAffDate').textContent = profil.dateInscription;
+}
+
+function seDeconnecter() {
+  localStorage.removeItem('alerteOrphee_profil');
+  document.getElementById('profilInscription').style.display = 'block';
+  document.getElementById('profilInfos').style.display = 'none';
+  showToast('👋 Déconnecté');
+}
+
+// Charger le profil au démarrage
+var profilSauvegarde = localStorage.getItem('alerteOrphee_profil');
+if(profilSauvegarde) {
+  try { afficherProfil(JSON.parse(profilSauvegarde)); } catch(e) {}
 }
 
 /* ENVOYER → FIREBASE */
