@@ -272,7 +272,7 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
       </div>
       <div class="card-acts">
         <button class="btn-wa" onclick="event.stopPropagation();showToast('📲 Message WhatsApp préparé !')">📲 Partager WA</button>
-        <button class="btn-tel" onclick="event.stopPropagation();showToast('📞 Appel en cours...')">📞 116</button>
+        <button class="btn-tel" onclick="event.stopPropagation();appelerUrgence('116')">📞 116</button>
       </div>
     </div>
     <div id="listeFirebase"></div>
@@ -309,8 +309,8 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
     <div class="desc-blk" style="border-top-color:#2ecc71"><h4 style="color:#2ecc71">DIFFUSION TEMPS RÉEL</h4><p>🔁 <strong>1 247</strong> partages WA · 👁️ <strong>8 432</strong> vues · 📍 <strong>3</strong> témoignages</p></div>
   </div>
   <div class="act-panel">
-    <button class="btn-wa-lg" onclick="showToast('📲 Partagé sur WhatsApp !')">📲 PARTAGER WHATSAPP</button>
-    <button class="btn-tel-lg" onclick="showToast('📞 Appel 116...')">📞 116</button>
+    <button class="btn-wa-lg" onclick="partagerWhatsApp('Amina Bello','8','Bonanjo Douala','Robe bleue cheveux tresses','116')">📲 PARTAGER WHATSAPP</button>
+    <button class="btn-tel-lg" onclick="appelerUrgence('116')">📞 116</button>
   </div>
 </div>
 
@@ -421,14 +421,32 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
       <div class="urg-meta" id="uMeta">8 ans · Bonanjo, Douala · Il y a 2 min</div>
       <div class="urg-desc" id="uDesc">Robe bleue, cheveux tressés. Si vous avez une information, contactez le 116 immédiatement.</div>
       <div class="urg-acts">
-        <button class="btn-wa-lg" onclick="showToast('📲 Partagé sur WhatsApp !');document.getElementById('popupOverlay').style.display='none'">📲 PARTAGER SUR WHATSAPP</button>
-        <button class="btn-tel-lg" onclick="showToast('📞 Appel 116...');document.getElementById('popupOverlay').style.display='none'">📞 APPELER LE 116</button>
+        <button class="btn-wa-lg" onclick="partagerWhatsApp(document.getElementById('uNom').textContent,'',document.getElementById('uMeta').textContent,document.getElementById('uDesc').textContent,'116');document.getElementById('popupOverlay').style.display='none'">📲 PARTAGER SUR WHATSAPP</button>
+        <button class="btn-tel-lg" onclick="appelerUrgence('116');document.getElementById('popupOverlay').style.display='none'">📞 APPELER LE 116</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+/* WHATSAPP PARTAGE */
+function partagerWhatsApp(nom, age, lieu, description, telephone) {
+  var msg = '🚨 ALERTE ORPHEE 🚨\n\n';
+  msg += 'Enfant disparu : ' + nom + '\n';
+  if(age) msg += 'Age : ' + age + ' ans\n';
+  msg += 'Lieu : ' + lieu + '\n';
+  if(description) msg += 'Description : ' + description + '\n';
+  msg += 'Contacter : ' + telephone + '\n\n';
+  msg += 'Voir alerte : https://ottokoasyncrite-png.github.io/Alerte-Orph-e-/alerte-orphee.html\n\n';
+  msg += 'Si vous avez des informations, contactez le ' + telephone + ' ou le 116.\n';
+  msg += 'Partagez pour aider a retrouver cet enfant !';
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function appelerUrgence(numero) {
+  window.location.href = 'tel:' + numero.replace(/\s/g,'');
+}
+
 /* NAVIGATION */
 function goTo(id){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
@@ -629,8 +647,8 @@ db.collection('alertes')
           '</div>'+
         '</div>'+
         '<div class="card-acts">'+
-          '<button class="btn-wa" onclick="showToast(\'📲 Message WhatsApp préparé !\')">📲 Partager WA</button>'+
-          '<button class="btn-tel" onclick="showToast(\'📞 Appel en cours...\')">📞 '+(a.telephone||'116')+'</button>'+
+          '<button class="btn-wa" onclick="partagerWhatsApp(\'' + a.nom + '\',\'' + a.age + '\',\'' + a.lieu + '\',\'' + (a.description||'') + '\',\'' + (a.telephone||'116') + '\')">📲 Partager WA</button>'+
+          '<button class="btn-tel" onclick="appelerUrgence(\'' + (a.telephone||'116') + '\')">📞 '+(a.telephone||'116')+'</button>'+
         '</div>';
       liste.appendChild(card);
     });
