@@ -465,9 +465,22 @@ function handlePhoto(inp){
   if(!file.type.startsWith('image/')){showToast('⚠️ Choisissez une image');return;}
   var r=new FileReader();
   r.onload=function(e){
-    photoData=e.target.result;
-    showPhoto(photoData);
-    showToast('✅ Photo ajoutée !');
+    // Compresser la photo avant stockage
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var MAX=400;
+      var w=img.width, h=img.height;
+      if(w>h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+      else { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      photoData=canvas.toDataURL('image/jpeg',0.6);
+      window.photoDataUrl=photoData;
+      showPhoto(photoData);
+      showToast('✅ Photo ajoutée et compressée !');
+    };
+    img.src=e.target.result;
   };
   r.readAsDataURL(file);
 }
