@@ -629,6 +629,7 @@ function setNav(el,id){
   document.querySelectorAll('.nav-btn').forEach(function(n){n.classList.remove('on')});
   el.classList.add('on');
   goTo(id);
+  if(id==='carte') setTimeout(chargerCarte, 300);
 }
 
 /* TOAST */
@@ -817,12 +818,8 @@ function chargerCarte() {
   }, function(err){ console.warn('Carte:', err); });
 }
 
-// Charger la carte quand on clique sur l'onglet
-var origSetNav = setNav;
-setNav = function(el, id) {
-  origSetNav(el, id);
-  if(id === 'carte') chargerCarte();
-};
+// Charger la carte quand on navigue vers cet onglet
+// (géré directement dans setNav via vérification id)
 
 /* ENVOYER → FIREBASE */
 function envoyerAlerte(){
