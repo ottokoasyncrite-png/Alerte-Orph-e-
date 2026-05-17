@@ -305,7 +305,20 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
       <div class="info-blk"><div class="info-lbl">Signalée à</div><div class="info-val">14h 32</div></div>
     </div>
     <div class="desc-blk"><h4>DESCRIPTION</h4><p>Robe bleue à fleurs blanches, sandales dorées, cheveux nattés avec perles rouges. Vue pour la dernière fois près du marché central de Bonanjo.</p></div>
-    <div class="desc-blk"><h4>CONTACT D'URGENCE</h4><p>👨‍👩‍👧 Parent : <strong style="color:var(--blanc)">+237 6XX XXX XXX</strong><br>📞 Urgence nationale : <strong style="color:var(--rouge)">116</strong></p></div>
+    <div class="desc-blk"><h4>CONTACT D'URGENCE</h4>
+    <p>👨‍👩‍👧 Parent : <strong style="color:var(--blanc)">+237 6XX XXX XXX</strong><br>
+    🚔 Police nationale : <strong style="color:var(--rouge)">117</strong><br>
+    📞 Urgence enfants : <strong style="color:var(--rouge)">116</strong></p>
+    </div>
+    <div class="desc-blk" style="border-top-color:#e67e22;">
+    <h4 style="color:#e67e22;">⚠️ SI VOUS AVEZ RETROUVÉ L'ENFANT</h4>
+    <p style="font-size:13px;color:var(--gris-c);line-height:1.7;">
+    • Contactez le <strong style="color:white">117</strong> ou <strong style="color:white">116</strong> immédiatement<br>
+    • Accompagnez l'enfant au commissariat le plus proche<br>
+    • Ne partagez pas sa localisation publiquement<br>
+    • Ne retenez pas l'enfant seul — attendez les forces de l'ordre
+    </p>
+    </div>
     <div class="desc-blk" style="border-top-color:#2ecc71"><h4 style="color:#2ecc71">DIFFUSION TEMPS RÉEL</h4><p>🔁 <strong>1 247</strong> partages WA · 👁️ <strong>8 432</strong> vues · 📍 <strong>3</strong> témoignages</p></div>
   </div>
   <div class="act-panel">
@@ -375,8 +388,12 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
       <textarea class="f-inp" id="fDesc" rows="3" placeholder="Vêtements, signes particuliers..." oninput="majApercu()"></textarea>
     </div>
     <div class="f-sec">
-      <label class="f-lbl">Numéro à contacter</label>
+      <label class="f-lbl">Numéro du parent à contacter *</label>
       <input class="f-inp" id="fTel" type="tel" placeholder="+237 6XX XXX XXX">
+    </div>
+    <div class="f-sec">
+      <label class="f-lbl">Commissariat / Numéro police local</label>
+      <input class="f-inp" id="fPolice" type="tel" placeholder="Ex : +237 222 XXX XXX ou 117">
     </div>
 
     <!-- Aperçu -->
@@ -398,6 +415,16 @@ body{background:var(--noir);color:var(--blanc);font-family:'Instrument Sans',san
 
     <button class="btn-submit" id="btnEnvoyer" onclick="envoyerAlerte()" disabled>🚨 LANCER L'ALERTE MAINTENANT</button>
     <p style="text-align:center;font-size:11px;color:var(--gris-c);margin-top:8px">L'alerte sera validée par un opérateur avant diffusion</p>
+
+    <!-- Message de sécurité -->
+    <div style="background:#1a2a1a;border:1px solid var(--vert);border-radius:8px;padding:14px;margin-top:16px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#2ecc71;margin-bottom:8px;">⚠️ MESSAGE DE SÉCURITÉ IMPORTANT</div>
+      <p style="font-size:12px;color:#aaa;line-height:1.7;">Si vous avez retrouvé cet enfant :<br>
+      • <strong style="color:white">Contactez le 116 ou 117</strong> immédiatement<br>
+      • <strong style="color:white">Ne retenez pas l'enfant</strong> — accompagnez-le calmement au commissariat le plus proche<br>
+      • <strong style="color:white">Ne partagez pas sa localisation</strong> publiquement pour éviter tout attroupement<br>
+      • <strong style="color:white">Ne faites pas justice vous-même</strong> — signalez toute information suspecte à la police</p>
+    </div>
   </div>
   <nav class="nav">
     <button class="nav-btn" onclick="setNav(this,'home')">🏠<span>Accueil</span></button>
@@ -688,6 +715,7 @@ function envoyerAlerte(){
   var lieu=document.getElementById('fLieu').value.trim();
   var desc=document.getElementById('fDesc').value.trim();
   var tel=document.getElementById('fTel').value.trim();
+    var police=document.getElementById('fPolice').value.trim();
   if(!nom||!age||!lieu){showToast('⚠️ Remplis nom, âge et lieu');return;}
   var btn=document.getElementById('btnEnvoyer');
   btn.textContent='⏳ ENVOI EN COURS…';
